@@ -1,0 +1,79 @@
+#include <LiquidCrystal.h>
+
+// LCD pin setup
+const int rs = 7, en = 8, d4 = 9, d5 = 10, d6 = 11, d7 = 12;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+// Ultrasonic sensor pins
+const int trigPin = 2;
+const int echoPin = 3;
+
+long duration;
+int distance;
+
+bool isBlocked = false;
+
+//Button
+int buttonPin = 6;
+int buttonNew;
+int buttonOld = 1;
+
+// Messages
+String mySentences[6] = { "Focus on 1 thing", "You got this!", "Keep Smiling", "We love you!", "Shine On", "Believe in you" };
+
+void setup() {
+  Serial.begin(9600);
+  
+  pinMode(buttonPin, INPUT);
+  lcd.begin(16, 2);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  lcd.clear();
+}
+
+void loop() {
+  measureDistance();
+
+  /*
+  // Comment this block to use button
+  if (distance < 10 && !isBlocked) {
+    // Set the object as detected
+    isBlocked = true;  
+
+    int count = sizeof (mySentences) / sizeof (mySentences[0]);
+    int index = random(0, count);  
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(mySentences[index]);
+  }
+
+  if (distance >= 10) {
+    isBlocked = false;
+  }*/
+
+  // Comment this block to use ultrasonic sensor
+  buttonNew = digitalRead(buttonPin);
+  if (buttonOld == 1 && buttonNew == 0)
+  {
+    int count = sizeof (mySentences) / sizeof (mySentences[0]);
+    int index = random(0, count);  
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(mySentences[index]);
+  }
+  buttonOld = buttonNew;
+
+  delay(100); 
+}
+
+void measureDistance() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration * 0.034 / 2;
+}
